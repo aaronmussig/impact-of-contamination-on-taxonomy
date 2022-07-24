@@ -1,0 +1,37 @@
+--- gunc.py	2022-03-31 14:32:57.000000000 +1000
++++ gunc2.py	2022-05-19 13:39:00.000000000 +1000
+@@ -466,9 +466,9 @@
+     Returns:
+         pandas.DataFrame: One line per inputfile Gunc scores
+     """
+-    print(
+-        f'[START] {datetime.now().strftime("%H:%M:%S")} Running scoring..', flush=True
+-    )
++    # print(
++    #     f'[START] {datetime.now().strftime("%H:%M:%S")} Running scoring..', flush=True
++    # )
+     gunc_output = []
+     for diamond_file in diamond_outfiles:
+         basename = os.path.basename(diamond_file).split(".diamond.")[0]
+@@ -500,9 +500,9 @@
+                 contig_assignments_out_file, index=False, sep="\t"
+             )
+         gunc_output.append(single)
+-    print(
+-        f'[END]   {datetime.now().strftime("%H:%M:%S")} Finished scoring..', flush=True
+-    )
++    # print(
++    #     f'[END]   {datetime.now().strftime("%H:%M:%S")} Finished scoring..', flush=True
++    # )
+     return pd.concat(gunc_output).sort_values("genome")
+ 
+ 
+@@ -555,7 +555,7 @@
+     assignments = []
+     for contig in tax_data["contig"].unique():
+         contig_data = tax_data[tax_data["contig"] == contig]
+-        for tax_level in ["kingdom", "phylum", "family", "genus", "species"]:
++        for tax_level in ["kingdom", "phylum", "class", "order", "family", "genus", "species"]:
+             counts = contig_data[tax_level].value_counts().to_dict()
+             for assignment in counts:
+                 assignments.append(
