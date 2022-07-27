@@ -12,11 +12,15 @@ from workflow.fastani_interspecies.run_fastani_interspecies_to_genus_ani_for_sp_
 from workflow.model.luigi import LuigiTask
 from workflow.util.log import log
 
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 N_CPUS = mp.cpu_count()
 
 N_RANDOM = 10
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 class FastAniInterspeciesPlots(LuigiTask):
@@ -81,6 +85,14 @@ class FastAniInterspeciesPlots(LuigiTask):
         #              stat='percent', common_norm=True, ax=ax2)
         # plt.show()
 
+        n_all_above_92  = len(df[(df['source']  == 'all') & (df['ani'] >93)])
+        n_all = len(df[(df['source']  == 'all')])
+        print(f'all above ANI: {n_all_above_92}/{n_all} ({n_all_above_92/n_all:.2%})')
+
+        n_fail_above_92  = len(df[(df['source']  == 'fail') & (df['ani'] >93)])
+        n_fail = len(df[(df['source']  == 'fail')])
+        print(f'fail above ANI: {n_fail_above_92}/{n_fail} ({n_fail_above_92/n_fail:.2%})')
+
 
         # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 8))
         # plt.rcParams.update({'font.size': 13})
@@ -94,13 +106,27 @@ class FastAniInterspeciesPlots(LuigiTask):
         #              stat='percent', common_norm=True, ax=ax1)
         # plt.show()
 
-        fig, ax1 = plt.subplots(1, 1, figsize=(10, 8))
+        fig, (ax1) = plt.subplots(1, 1, figsize=(10, 8))
         plt.rcParams.update({'font.size': 13})
         plt.rcParams['svg.fonttype'] = 'none'
 
         sns.histplot(data=df, x='ani',
-                     bins=list(range(75, 100)), hue='source', multiple='stack',
+                     bins=list(range(75, 100)), hue='source', multiple='dodge',
                      stat='percent', common_norm=False, ax=ax1)
+
+
+        # data_f = df[df['source'] == 'fail']['ani']
+        # data_a = df[df['source'] == 'all']['ani']
+        #
+        # ax1.hist(data_f, weights=np.ones(len(data_f)) / len(data_f))
+        # ax2.hist(data_a, weights=np.ones(len(data_a)) / len(data_a))
+        # ax1.yaxis.set_major_formatter(PercentFormatter(1))
+        # ax2.yaxis.set_major_formatter(PercentFormatter(1))
+        #
+        # ax3.hist(data_f, weights=np.ones(len(data_f)) / len(data_f))
+        # ax3.hist(data_a, weights=np.ones(len(data_a)) / len(data_a))
+        # ax3.yaxis.set_major_formatter(PercentFormatter(1))
+        # plt.show()
 
         plt.savefig('/tmp/new_ani.svg')
         plt.show()
