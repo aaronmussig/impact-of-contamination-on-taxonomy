@@ -1,0 +1,1 @@
+window.__NUXT__=(function(a){return {staticAssetsBase:"\u002Fimpact-of-contamination-on-taxonomy\u002F_nuxt\u002Fstatic\u002F1659406247",layout:"default",error:a,serverRendered:true,routePath:"\u002Fposter",config:{_app:{basePath:"\u002Fimpact-of-contamination-on-taxonomy\u002F",assetsPath:"\u002Fimpact-of-contamination-on-taxonomy\u002F_nuxt\u002F",cdnURL:a}}}}(null));
