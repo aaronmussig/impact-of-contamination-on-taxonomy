@@ -80,7 +80,7 @@ def rq_and_wait(job_id: str, fn: Callable, q_args: List[Tuple], queue_name: str,
 
         # Queue is empty, populate it
         if q.count == 0:
-            for arg in args_to_enqueue:
+            for arg in tqdm(args_to_enqueue):
                 prep_queue.append(Queue.prepare_data(fn, timeout='60d', ttl='60d',
                                                      failure_ttl='60d', result_ttl='60d',
                                                      args=arg))

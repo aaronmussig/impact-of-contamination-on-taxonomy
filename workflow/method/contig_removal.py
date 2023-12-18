@@ -12,6 +12,34 @@ from workflow.util.fasta import read_fasta
 from workflow.util.paths import get_gid_root
 
 
+def get_taxonomy_by_majority_size_from_gunc(df_contig_assign: pd.DataFrame) -> Tuple[Tuple[str], str]:
+    tax_levels = ('kingdom', 'phylum', 'class', 'order', 'family', 'genus')
+    majority_taxon = None
+    majority_css = None
+    for tax_level in tax_levels:
+
+        # Select the hits that are at the MaxCSS level
+        df_tax_level = df_contig_assign[df_contig_assign['tax_level'] == tax_level]
+
+        # Aggregate the assignments by count of genes assigned
+        df_top_hits = df_tax_level[['assignment', 'count_of_genes_assigned']].groupby('assignment').sum()
+        d_top_hits = Counter(df_top_hits['count_of_genes_assigned'].to_dict())
+        most_common_taxon, most_common_count = d_top_hits.most_common(1)[0]
+        total_n_gene_hits = int(df_top_hits.sum())
+
+        # Check to see if this hit is a majority
+        if most_common_count / total_n_gene_hits > 0.5:
+            majority_taxon = most_common_taxon
+            majority_css = tax_level
+        else:
+            break
+
+    if majority_taxon is None:
+        raise Exception('Unable to find a majority vote!')
+
+    return majority_taxon, majority_css
+
+
 def get_taxonomy_by_majority_vote_gunc(df_contig_assign: pd.DataFrame, max_css: str, expected_domain: str) -> Tuple[
     str, str]:
     # Create a mapping from each tax_level to the contigs present
@@ -72,7 +100,7 @@ def get_taxonomy_by_majority_vote_gunc(df_contig_assign: pd.DataFrame, max_css: 
 def get_contig_metadata(d_fna: Dict[str, str]):
     out = dict()
     for contig, seq in d_fna.items():
-        seq = str(seq.seq)
+        seq = str(seq)
         contig_len = len(seq)
         gc_pct = 100 * (seq.count('G') + seq.count('C')) / contig_len
         out[contig] = {'length': len(seq), 'gc': gc_pct}
@@ -149,6 +177,39 @@ def contigs_to_remove_from_gunc(d_fna: Dict[str, str], df_contig_assign: pd.Data
     return d_pct_to_contigs_dedup
 
 
+def contigs_to_remove_from_gunc_only_pct(gid, d_fna: Dict[str, str], df_contig_assign: pd.DataFrame, taxon: str,
+                                         tax_level: str):
+    # Subset the dataframe to only those ranks in the tax level
+    df_subset = df_contig_assign[df_contig_assign['tax_level'] == tax_level]
+    if len(df_subset) == 0:
+        raise Exception(f'No contigs found at tax_level {tax_level}')
+
+    # Aggregate the assignments by contig
+    d_contig_to_assignments = defaultdict(dict)
+    for _, row in df_subset.iterrows():
+        d_contig_to_assignments[row['contig']][row['assignment']] = int(row['count_of_genes_assigned'])
+
+    # Get the mapping percentage for each contig
+    d_contig_to_map_pct = dict()
+    for contig, d_assignments in d_contig_to_assignments.items():
+        total_count = sum(d_assignments.values())
+        d_contig_to_map_pct[contig] = 100 * d_assignments.get(taxon, 0) / total_count
+
+    # Load the contig metadata
+    d_contig_metadata = get_contig_metadata(d_fna)
+
+    out = list()
+    for contig, map_pct in d_contig_to_map_pct.items():
+        out.append({
+            'gid': gid,
+            'contig': contig,
+            'map_pct': map_pct,
+            'length': d_contig_metadata[contig]['length'],
+            'gc': d_contig_metadata[contig]['gc'],
+        })
+    return out
+
+
 def _main():
     gid = 'GCF_003052605.1'
     domain = 'd__Bacteria'
@@ -164,7 +225,7 @@ def _main():
 
     df_contig_assign = read_contig_assignments_tsv(
         os.path.join(gunc_dir_r95, 'gunc_output', f'{gid}.contig_assignments.tsv'))
-
+    taxon1, tax_level1 = get_taxonomy_by_majority_size_from_gunc(df_contig_assign)
     taxon, tax_level = get_taxonomy_by_majority_vote_gunc(df_contig_assign, max_css, domain)
     d_contigs_to_remove = contigs_to_remove_from_gunc(d_fna, df_contig_assign, taxon, tax_level)
 

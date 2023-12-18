@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from workflow.config import DEBUG, DIR_OUT_FASTANI
 from workflow.fastani.remove_gunc_failed_contigs_by_contamination import RemoveGuncFailedContigsByContamination
-from workflow.gunc.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
+from workflow.gunc_helper.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
 from workflow.model.luigi import LuigiTask, LocalTargetHdf5
 from workflow.util.log import log
 from workflow.util.paths import get_gid_root

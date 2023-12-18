@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from workflow.external.gtdb_metadata import GtdbMetadataR207Full, GtdbMetadataR207
 from workflow.external.gtdb_sp_clusters import GtdbSpClustersR207
-from workflow.gunc.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
+from workflow.gunc_helper.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
 from workflow.method.contig_removal import get_taxonomy_by_majority_vote_gunc, contigs_to_remove_from_gunc
 from workflow.util.log import log
 from workflow.util.paths import get_gid_root

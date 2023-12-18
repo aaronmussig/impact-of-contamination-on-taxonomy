@@ -6,7 +6,7 @@ import os
 import pandas as pd
 
 
-GIDS = ['GCA_900751995.1', 'GCA_900759445.1', 'GCF_002026585.1', 'GCA_003086435.1', 'GCA_900555355.1']
+GIDS = ['GCA_016712675.1']
 
 
 R95_SP_TO_R207_REP = {
@@ -56,10 +56,6 @@ def main():
     df_reps = df_meta[df_meta['gtdb_representative'] == 't']
 
     for gid in GIDS:
-        if gid != 'GCA_900759445.1':
-            continue
-
-
 
         gid_root = get_gid_root(gid)
         gid_fna = os.path.join(gid_root, f'{gid}.fna')

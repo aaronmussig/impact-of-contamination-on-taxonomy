@@ -3,7 +3,7 @@ from gunc.gunc import run_gunc
 from magna.util.disk import copy_file
 
 from workflow.config import PATH_GUNC_GTDB_REF_DB
-from workflow.gunc.aggregate_diamond_output import GuncGtdbR95AggregateDiamondOutput
+from workflow.gunc_helper.aggregate_diamond_output import GuncGtdbR95AggregateDiamondOutput
 from workflow.util.paths import get_gid_root_cutoff
 import os
 import pandas as pd

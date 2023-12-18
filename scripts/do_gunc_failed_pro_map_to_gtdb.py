@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from workflow.config import TAX_LEVELS
 from workflow.external.gtdb_metadata import GtdbMetadataR95
-from workflow.gunc.aggregate_max_css_level_gunc import AggregateMaxCssLevelGtdbR95
+from workflow.gunc_helper.aggregate_max_css_level_gunc import AggregateMaxCssLevelGtdbR95
 from workflow.util.fasta import read_fasta
 from workflow.util.gunc import get_contig_mapping_proportion_for_taxon
 from workflow.util.paths import get_gid_root

@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import pandas as pd
 
@@ -13,8 +14,13 @@ def run_sp_clustering_on_fastani_values(
         gid: str,
         rep_gid: str,
         df_fastani: pd.DataFrame,
-        ani_radius: float
+        ani_radius: float,
+        row_id: Optional[str] = None,
 ):
+    # Alternative row id for returning the genome id
+    if row_id is None:
+        row_id = gid
+
     # If this is a species representative, then remove hits to self
     is_rep = gid == rep_gid
     if is_rep:
@@ -28,7 +34,7 @@ def run_sp_clustering_on_fastani_values(
     if len(df_fastani) == 0:
         # log(f'No genomes within AF radius {gid}')
         return {
-            'gid': gid,
+            'gid': row_id,
             'new_sp_rep': None,
             'ani': None,
             'af': None,
@@ -43,7 +49,7 @@ def run_sp_clustering_on_fastani_values(
     if len(df_fastani) == 0:
         # log(f'No genomes within ANI radius {gid}')
         return {
-            'gid': gid,
+            'gid': row_id,
             'new_sp_rep': None,
             'ani': None,
             'af': None,
@@ -67,7 +73,7 @@ def run_sp_clustering_on_fastani_values(
         is_same = True
 
     return {
-        'gid': gid,
+        'gid': row_id,
         'new_sp_rep': new_sp_rep_gid,
         'ani': float(new_sp_rep_series['ani']),
         'af': float(new_sp_rep_series['af']),

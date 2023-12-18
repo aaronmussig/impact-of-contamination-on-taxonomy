@@ -12,10 +12,11 @@ from workflow.config import DIR_OUT_FASTTREE_MARKER_ANALYSIS, DEBUG
 from workflow.external.gtdb_metadata import GtdbMetadataR207
 from workflow.external.gtdb_tree import GtdbTreeBacR207
 from workflow.fasttree_marker_analysis.gunc_c_decorate_fasttree import FastTreeMarkerAnalysisDecorateGuncFastTree
-from workflow.gunc.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
+from workflow.fasttree_marker_analysis.random_d_analyse_decorated import decorated_tax_to_agreed, get_taxon_to_gids
+from workflow.gunc_helper.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
 from workflow.model.genome import Genome
 from workflow.model.gunc_model import GuncRefDb
-from workflow.model.luigi import LuigiTask
+from workflow.model.luigi import LuigiTask, LocalTargetTsv
 from workflow.util.log import log
 
 
@@ -42,6 +43,10 @@ class FastTreeMarkerAnalyseDecorated(LuigiTask):
     congruence = luigi.FloatParameter()
     target_pct = luigi.FloatParameter()
 
+    @property
+    def root_dir(self):
+        return os.path.join(DIR_OUT_FASTTREE_MARKER_ANALYSIS, f'c{str(self.congruence)}_p{str(self.target_pct)}')
+
     def requires(self):
         return {
             'decorated': FastTreeMarkerAnalysisDecorateGuncFastTree(congruence=self.congruence,
@@ -52,12 +57,10 @@ class FastTreeMarkerAnalyseDecorated(LuigiTask):
         }
 
     def output(self):
-        return LocalTarget(os.path.join(DIR_OUT_FASTTREE_MARKER_ANALYSIS, str(self.congruence), str(self.target_pct),
-                                        'decorated_analysis_results.tsv'))
+        return LocalTargetTsv(os.path.join(self.root_dir, 'decorated_analysis_results.tsv'))
 
     def run(self):
-        log(f'Analysing results of decorated tree (gunc informed) (congruence={self.congruence}) (pct={self.target_pct})',
-            title=True)
+        log(f'FastTreeMarkerAnalyseDecorated(c={self.congruence}, p={self.target_pct})', title=True)
         self.make_output_dirs()
 
         log('Loading BAC120 R207 reference tree')
@@ -88,17 +91,43 @@ class FastTreeMarkerAnalyseDecorated(LuigiTask):
         path_decorated_tax = os.path.join(phylo_dir, 'decorated.tree-taxonomy')
         d_gid_to_decorated_tax = read_tax_file(path_decorated_tax)
 
+        log('Getting taxonomic novelty (reps only)')
+        d_taxon_to_gids = get_taxon_to_gids(df_meta[df_meta['gtdb_representative'] == 't']['gtdb_taxonomy'].to_dict())
+
         correct = set()
         wrong = set()
-        for test_gid, decorated_tax in d_gid_to_decorated_tax.items():
+        for test_gid, decorated_tax in sorted(d_gid_to_decorated_tax.items()):
             if test_gid.startswith('TEST_'):
                 gid = test_gid[5:]
             else:
                 continue
             true_tax = d_gid_to_taxonomy[gid]
             if true_tax != decorated_tax:
-                wrong.add(gid)
-                print('mismatch', test_gid, true_tax, decorated_tax)
+
+                # d_decorated_tax_lst = decorated_tax_to_dict(decorated_tax)
+                d_decorated_tax_suffix = decorated_tax_to_agreed(decorated_tax)
+
+                # 1. The highest taxon (that has more than one genome) must be the same
+                # 2. All descendants in that taxon, must agree on all lower ranks
+
+                # Get the highest rank that should be taxonomically novel
+                highest_rank = None
+                for taxon in true_tax.split(';'):
+                    taxon_count = len(d_taxon_to_gids[taxon])
+                    if taxon_count == 1:
+                        break
+                    highest_rank = taxon
+
+                # Must be comparing a higher rank than the singleton
+                if highest_rank not in d_decorated_tax_suffix:
+                    wrong.add(gid)
+                else:
+                    if not true_tax.endswith(d_decorated_tax_suffix):
+                        wrong.add(gid)
+                    else:
+                        correct.add(gid)
+
+                # print('mismatch', test_gid, true_tax, decorated_tax)
             else:
                 correct.add(gid)
 

@@ -9,7 +9,7 @@ from workflow.cutoff.create_cutoff_from_max_css import CreateCutoffPctFromMaxCss
 from workflow.external.gtdb_metadata import GtdbMetadataR95
 from workflow.external.gtdb_sp_clusters import GtdbSpClustersR95
 from workflow.fastani.run_species_clustering_on_failed_aggregate import RunSpeciesClusteringOnFailedAggregate
-from workflow.gunc.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
+from workflow.gunc_helper.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
 from workflow.util.paths import get_gid_root_pct
 
 

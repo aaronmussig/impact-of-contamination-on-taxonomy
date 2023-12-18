@@ -10,6 +10,7 @@ import pandas as pd
 from magna.util.disk import get_file_size_fmt, move_file
 from magna.util.pandas import optimise_df
 
+from workflow.config import DEBUG
 from workflow.util.fasta import read_fasta
 from workflow.util.log import log
 from workflow.util.obj import get_class_fqn
@@ -103,6 +104,11 @@ class LocalTargetFasta(BaseLocalTarget):
     def read_cached(self) -> Dict[str, str]:
         path = maybe_cache(self.path)
         return self._read_path(path)
+    def maybe_read_cached(self) -> Dict[str, str]:
+        if not DEBUG:
+            return self.read()
+        else:
+            return self.read_cached()
 
 
 class LocalTargetMask(BaseLocalTarget):
@@ -155,6 +161,22 @@ class LocalTargetHdf5(BaseLocalTarget):
                            stop=stop, columns=columns, iterator=iterator,
                            chunksize=chunksize)
 
+    def maybe_read_cached(self, key: Optional[str] = 'root',
+                          where: Optional[str] = None,
+                          start: Optional[int] = None,
+                          stop: Optional[int] = None,
+                          columns: Optional[list] = None,
+                          iterator: Optional[bool] = None,
+                          chunksize: Optional[int] = None) -> pd.DataFrame:
+        if not DEBUG:
+            return self.read(key=key, where=where, start=start,
+                             stop=stop, columns=columns, iterator=iterator,
+                             chunksize=chunksize)
+        else:
+            return self.read_cached(key=key, where=where, start=start,
+                                    stop=stop, columns=columns, iterator=iterator,
+                                    chunksize=chunksize)
+
 
 class LocalTargetTsv(BaseLocalTarget):
 
@@ -168,3 +190,9 @@ class LocalTargetTsv(BaseLocalTarget):
     def read_cached(self) -> pd.DataFrame:
         path = maybe_cache(self.path)
         return self.read_path(path)
+
+    def maybe_read_cached(self) -> pd.DataFrame:
+        if not DEBUG:
+            return self.read()
+        else:
+            return self.read_cached()

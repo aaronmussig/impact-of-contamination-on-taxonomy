@@ -11,7 +11,7 @@ from workflow.external.gtdb_metadata import GtdbMetadataR207
 from workflow.external.gtdb_sp_clusters import GtdbSpClustersR207
 from workflow.fastani.remove_gunc_failed_contigs_by_contamination_aggregate import \
     RemoveGuncFailedContigsByContaminationAggregate
-from workflow.gunc.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
+from workflow.gunc_helper.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
 from workflow.method.run_species_clustering_on_fastani_values import run_sp_clustering_on_fastani_values
 from workflow.model.luigi import LuigiTask, LocalTargetHdf5
 from workflow.util.log import log

@@ -5,7 +5,7 @@ import pandas as pd
 
 from workflow.config import DEBUG, DIR_OUT_BOOTSTRAP
 from workflow.external.gtdb_metadata import GtdbMetadataR207
-from workflow.gunc.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
+from workflow.gunc_helper.aggregate_max_css_level_merged import AggregateMaxCssLevelMerged
 from workflow.model.luigi import LuigiTask, LocalTargetHdf5
 from workflow.util.log import log
 
