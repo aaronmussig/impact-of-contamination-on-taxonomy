@@ -53,6 +53,8 @@ DIR_OUT_FASTANI_CONTIG_SPLIT = os.path.join(DIR_OUT_ROOT, 'fastani_contig_split'
 DIR_OUT_FASTANI_CONTIG_SPLIT_RANDOM = os.path.join(DIR_OUT_FASTANI_CONTIG_SPLIT, 'random')
 
 DIR_OUT_FASTANI_RANDOM = os.path.join(DIR_OUT_ROOT, 'fastani_random')
+DIR_OUT_REVIEW = os.path.join(DIR_OUT_ROOT, 'review')
+DIR_OUT_REVIEW_CHECKM = os.path.join(DIR_OUT_REVIEW, 'checkm_input')
 DIR_OUT_HMMER = os.path.join(DIR_OUT_ROOT, 'hmmer')
 DIR_OUT_MARKER = os.path.join(DIR_OUT_ROOT, 'marker')
 DIR_OUT_MARKER_REP = os.path.join(DIR_OUT_MARKER, 'gtdb_r207_reps')

@@ -944,6 +944,20 @@ class Genome:
 
         return df_marker_ranking
 
+    def get_marker_distribution_for_review(self, max_css: GUNC_RANKS, source: GuncRefDb, pct: float):
+
+        # Obtain the markers that will actually be kept
+        markers_at_pct_removed, markers_expected, domain_vote, markers_at_pct_removed_c = self.get_unq_markers_present_at_pct_removed(max_css, source, pct)
+        markers_kept = frozenset(markers_at_pct_removed.keys())
+        assert len(markers_kept) == len(markers_at_pct_removed)
+
+        # We would like to find the last marker that was kept within that set
+        contigs_markers_kept_is_on = {x['hit'].gene_id.rsplit('_')[0] for x in markers_at_pct_removed.values()}
+        n_contigs_total = len(self.d_fna.keys())
+
+        return len(contigs_markers_kept_is_on), n_contigs_total
+
+
     def split_fna_by_pct(self, max_css: GUNC_RANKS, source: GuncRefDb, pct: float):
 
         # Obtain the contig + marker ranking (and coordinates)
